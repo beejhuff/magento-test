@@ -1,0 +1,103 @@
+run.config:
+  # install php and associated runtimes
+  engine: php
+
+  # php engine configuration (php version, extensions, etc)
+  engine.config:
+
+    # sets the php version to 7.0
+    runtime: php-7.0
+
+    memory_limit: 512M
+    max_execution_time: 1800
+
+    # use apache
+    webserver: apache
+
+    apache_modules:
+      - authz_host
+
+    # enables php extensions
+    extensions:
+      - pdo
+      - pdo_mysql
+      - simplexml
+      - session
+      - mcrypt
+      - hash
+      - gd
+      - dom
+      - iconv
+      - curl
+      - soap
+      - redis
+      - ctype
+      - intl
+      - mbstring
+      - tokenizer
+      - xmlwriter
+      - xsl
+      # required by composer
+      - phar
+      - filter
+      - json
+      - hash
+      - zip
+      - dom
+      - xml
+
+# add a MySQL database
+data.db:
+  image: nanobox/mysql
+
+# # add a Redis cache
+# data.cache:
+#   image: nanobox/redis
+
+# # add a Redis cache
+# data.sessions:
+#   image: nanobox/redis
+
+# add a local storage database
+data.storage:
+  image: nanobox/unfs
+
+# add a web server
+web.main:
+  start:
+    apache: start-apache
+    fpm: start-php
+
+  # add writable dirs to your web component
+  writable_dirs:
+    - bootstrap/cache
+
+  # the path to a logfile you want streamed to the nanobox dashboard
+  # todo: what log files apache
+  log_watch:
+    apache[access]: /data/var/log/apache/access.log
+    apache[error]: /data/var/log/apache/error.log
+    php[error]: /data/var/log/php/php_error.log
+    php[fpm]: /data/var/log/php/php_fpm.log
+
+  network_dirs:
+    data.storage:
+      - var
+      - pub/media
+      - pub/static
+      # - app/etc
+
+deploy.config:
+  before_live:
+    web.main:
+      - find nanobox/media/ -type f -exec chmod 644 {} \;
+      - find nanobox/static/ -type f -exec chmod 644 {} \;
+      - find nanobox/media/ -type d -exec chmod 755 {} \;
+      - find nanobox/static/ -type d -exec chmod 755 {} \;
+      - cp -r nanobox/media/. pub/media/
+      - cp -r nanobox/media/. pub/media/
+      - cp -r nanobox/static/. pub/static/
+      # - find nanobox/etc/ -type f -exec chmod 644 {} \;
+      # - find nanobox/etc/ -type d -exec chmod 755 {} \;
+      # - cp -r nanobox/etc/. app/etc/
+
