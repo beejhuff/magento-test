@@ -52,6 +52,11 @@ php bin/magento setup:install \
 exit
 ```
 
+#### Run and develop locally (while in `nanobox run`)
+```sh
+php-server # will start apache and fastCGI. your application should be accessible at the container's ip:8080.
+```
+
 #### Link local work directory to app on nanobox and deploy
 ```
 nanobox remote add my-magento
@@ -67,3 +72,12 @@ nanobox tunnel data.db
 ```
 mysql -h 127.0.0.1 -u nanobox -p$MY_MAGENTO_DB_PASS gonano < gonano.sql
 ```
+
+#### Console in to your magento app and reindex (if needed) (run from your linked local work directory)
+```
+nanobox console web.main
+php bin/magento indexer:reindex
+```
+
+### DISCLAIMER
+While I intend on following all of magento best practices, I am in no way a magento (nor php) developer and may make mistakes. I make no guarantee as to the condition of this guide.

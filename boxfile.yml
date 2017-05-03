@@ -85,10 +85,23 @@ web.main:
       - var
       - pub/media
       - pub/static
-      # - app/etc
 
+  # configure magento crons
+  cron:
+    - id: 'magento-cron'
+      schedule: '* * * * *'
+      command: '/data/bin/php /app/bin/magento cron:run | grep -v "Ran jobs by schedule" >> /app/var/log/magento.cron.log'
+    - id: 'magento-update-cron'
+      schedule: '* * * * *'
+      command: '/data/bin/php /app/update/cron.php >> /app/var/log/update.cron.log'
+    - id: 'magento-setup-cron'
+      schedule: '* * * * *'
+      command: '/data/bin/php /app/bin/magento setup:cron:run >> /app/var/log/setup.cron.log'
+
+# the following may be removed after the first deploy
 deploy.config:
   before_live:
+    # todo: double check if `chmod`ing is necessary
     web.main:
       - find nanobox/media/ -type f -exec chmod 644 {} \;
       - find nanobox/static/ -type f -exec chmod 644 {} \;
@@ -97,7 +110,3 @@ deploy.config:
       - cp -r nanobox/media/. pub/media/
       - cp -r nanobox/media/. pub/media/
       - cp -r nanobox/static/. pub/static/
-      # - find nanobox/etc/ -type f -exec chmod 644 {} \;
-      # - find nanobox/etc/ -type d -exec chmod 755 {} \;
-      # - cp -r nanobox/etc/. app/etc/
-
